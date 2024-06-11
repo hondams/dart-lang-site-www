@@ -9,15 +9,20 @@ prevpage:
 <?code-excerpt plaster="none"?>
 <?code-excerpt path-base="misc/lib/effective_dart"?>
 
+ここでは、一貫性があり、使い勝手の良いライブラリ用APIを書くためのガイドラインをいくつか紹介する。
 Here are some guidelines for writing consistent, usable APIs for libraries.
 
-## Names
+## 名前 Names
 
+ネーミングは、読みやすく保守性の高いコードを書くための重要な要素です。
+以下のベストプラクティスは、その目標を達成するのに役立ちます。
 Naming is an important part of writing readable, maintainable code.
 The following best practices can help you achieve that goal.
 
-### DO use terms consistently
+### DO 一貫して用語を使用する。 DO use terms consistently
 
+コード全体を通して、同じものには同じ名前を使いましょう。
+もしあなたのAPIの外側に、ユーザーが知っていそうな前例がすでに存在するのであれば、その前例に従いましょう。
 Use the same name for the same thing, throughout your code. If a precedent
 already exists outside your API that users are likely to know, follow that
 precedent.
@@ -39,6 +44,9 @@ wrappedAsSomething() // Inconsistent with asX() precedent.
 Cartesian            // Unfamiliar to most users.
 ```
 
+目標は、ユーザーがすでに知っていることを利用することだ。
+これには、問題領域そのも、コア・ライブラリの規約、独自のAPIの他の部分に関する知識が含まれる。
+それらの上に構築することで、ユーザーが生産的になるまでに習得しなければならない新しい知識の量を減らすことができる。
 The goal is to take advantage of what the user already knows. This includes
 their knowledge of the problem domain itself, the conventions of the core
 libraries, and other parts of your own API. By building on top of those, you
@@ -46,8 +54,10 @@ reduce the amount of new knowledge they have to acquire before they can be
 productive.
 
 
-### AVOID abbreviations
+### AVOID 略語を避ける。 AVOID abbreviations
 
+略語が省略されていない用語よりも一般的でない限り、略語は使わない。
+省略しないこと。省略する場合は、[正しく大文字にする][caps]。
 Unless the abbreviation is more common than the unabbreviated term, don't
 abbreviate. If you do abbreviate, [capitalize it correctly][caps].
 
@@ -70,8 +80,10 @@ HypertextTransferProtocolRequest
 ```
 
 
-### PREFER putting the most descriptive noun last
+### PREFER 最も説明的な名詞を最後に置くことを優先する。 PREFER putting the most descriptive noun last
 
+最後の単語は、その物事が何であるかを最もよく表すものでなければならない。
+さらにその事柄を説明するために、形容詞のような他の単語を前につけることができる。
 The last word should be the most descriptive of what the thing is. You can
 prefix it with other words, such as adjectives, to further describe the thing.
 
@@ -91,8 +103,9 @@ RuleFontFaceCss           // Not a CSS.
 ```
 
 
-### CONSIDER making the code read like a sentence
+### CONSIDER コードを文のように読ませることを検討する。 CONSIDER making the code read like a sentence
 
+ネーミングに迷ったら、APIを使うコードを書いて、それを文のように読んでみよう。
 When in doubt about naming, write some code that uses your API, and try to read
 it like a sentence.
 
@@ -122,6 +135,10 @@ subscription.toggle();
 monsters.filter((monster) => monster.hasClaws);
 ```
 
+APIを試してみて、それがコードで使われたときにどのように "読まれるか "を確認するのは役に立つが、
+行き過ぎはよくない。
+名前を *文字通り* 文法的に正しい文のように読ませるために、
+冠詞やその他の品詞を追加することは役に立ちません。
 It's helpful to try out your API and see how it "reads" when used in code, but
 you can go too far. It's not helpful to add articles and other parts of speech
 to force your names to *literally* read like a grammatically correct sentence.
@@ -135,8 +152,11 @@ monsters.producesANewSequenceWhereEach((monster) => monster.hasClaws);
 ```
 
 
-### PREFER a noun phrase for a non-boolean property or variable
+### PREFER boolean でないプロパティまたは変数に対して名詞句を優先する。 PREFER a noun phrase for a non-boolean property or variable
 
+読者の関心は、プロパティが *何* であるかにある。
+もし、*どのように* プロパティを決定するについて、ユーザーが もっと関心をもつなら、
+それはおそらく動詞句の名前を持つメソッドであるべきでしょう。
 The reader's focus is on *what* the property is. If the user cares more about
 *how* a property is determined, then it should probably be a method with a
 verb phrase name.
@@ -156,6 +176,8 @@ list.deleteItems
 
 ### PREFER a non-imperative verb phrase for a boolean property or variable
 
+Boolean の名前は制御フローの条件として使われることが多いので、うまく読み取れる名前をつけたい。
+比較してみよう：
 Boolean names are often used as conditions in control flow, so you want a name
 that reads well there. Compare:
 
@@ -164,23 +186,38 @@ if (window.closeable) ...  // Adjective.
 if (window.canClose) ...   // Verb.
 ```
 
+良い名前は、数種類の動詞のいずれかで始まる傾向がある：
 Good names tend to start with one of a few kinds of verbs:
 
-*   a form of "to be": `isEnabled`, `wasShown`, `willFire`. These are, by far,
+*   "to be" 形式: `isEnabled`, `wasShown`, `willFire`.
+    これらは、圧倒的に一般的である。
+    a form of "to be": `isEnabled`, `wasShown`, `willFire`. These are, by far,
     the most common.
 
-*   an [auxiliary verb][]: `hasElements`, `canClose`,
+*   an [助動詞][]: `hasElements`, `canClose`, `shouldConsume`, `mustSave`.
+    an [auxiliary verb][]: `hasElements`, `canClose`,
     `shouldConsume`, `mustSave`.
 
-*   an active verb: `ignoresInput`, `wroteFile`. These are rare because they are
+*   能動的な動詞: `ignoresInput`, `wroteFile`
+    これらは通常曖昧であるため、稀である。
+    `loggedResult`は、"結果がログに記録されたかどうか" を意味することもあれば、
+    "ログに記録された結果" を意味することもあるので、悪い名前である。
+    同様に、`closingConnection` は "接続が閉じているかどうか" を意味することもあれば、
+    "閉じている接続" を意味することもある。
+    能動的な動詞は、その名前が述語として *のみ* 読み取れる場合に許可される。
+    an active verb: `ignoresInput`, `wroteFile`. These are rare because they are
     usually ambiguous. `loggedResult` is a bad name because it could mean
     "whether or not a result was logged" or "the result that was logged".
     Likewise, `closingConnection` could be "whether the connection is closing"
     or "the connection that is closing". Active verbs are allowed when the name
     can *only* be read as a predicate.
 
-[auxiliary verb]: https://en.wikipedia.org/wiki/Auxiliary_verb
+[助動詞]: https://en.wikipedia.org/wiki/Auxiliary_verb
 
+これらの動詞句がメソッド名と違うのは、*命令形*ではないということです。
+boolean の名前は、オブジェクトに何かを指示するコマンドのように、決して聞こえるべきではありません、 
+なぜなら、プロパティにアクセスしてもオブジェクトは変わらないからです。
+（もしそのプロパティが意味のある方法でオブジェクトを変更 *する* のであれば、それはメソッドであるべきです。）
 What separates all these verb phrases from method names is that they are not
 *imperative*. A boolean name should never sound like a command to tell the
 object to do something, because accessing a property doesn't change the object.
@@ -208,8 +245,11 @@ showPopup     // Sounds like it shows the popup.
 ```
 
 
-### CONSIDER omitting the verb for a named boolean *parameter*
+### CONSIDER 名前付き boolean *パラメーター*の動詞を省略することを検討する。 CONSIDER omitting the verb for a named boolean *parameter*
 
+これは、前のルールを改良したものである。
+boolean である 名前付きパラメータにとって、その名前は、動詞がなくても明確であることが多く、
+そのコードは呼び出し側で読みやすくなる。
 This refines the previous rule. For named parameters that are boolean, the name
 is often just as clear without the verb, and the code reads better at the call
 site.
@@ -223,14 +263,24 @@ var regExp = RegExp(pattern, caseSensitive: false);
 ```
 
 
-### PREFER the "positive" name for a boolean property or variable
+### PREFER boolean のプロパティまたは変数の"肯定の"名前を優先する。 PREFER the "positive" name for a boolean property or variable
 
+ほとんどの boolean の名前には概念的に "肯定" と "否定" の形があり、
+前者は基本的な概念らしく、後者はその否定である。
+— "open" と "closed", "enabled" と "disabled", など. 
+多くの場合、後者の名前は、文字通りに、前者を否定する接頭辞を持つ： 
+"visible" と "*in*-visible"、"connected" と "*dis*-connected"、"zero" と "*non*-zero" などである。
 Most boolean names have conceptually "positive" and "negative" forms where the
 former feels like the fundamental concept and the latter is its
 negation—"open" and "closed", "enabled" and "disabled", etc. Often the
 latter name literally has a prefix that negates the former: "visible" and
 "*in*-visible", "connected" and "*dis*-connected", "zero" and "*non*-zero".
 
+`true`が表す2つのケース、つまりプロパティの名前がどちらのケースを表すかを選択する場合は、
+肯定 または より基本的な方を優先する。
+Booleanメンバは、否定演算子を含む論理式の中に入れ子になることがよくあります。
+プロパティそのものが否定のように読めれば、読者が頭の中で二重否定を実行し、
+コードの意味を理解するのは難しくなります。
 When choosing which of the two cases that `true` represents—and thus
 which case the property is named for—prefer the positive or more
 fundamental one. Boolean members are often nested inside logical expressions,
@@ -254,24 +304,36 @@ if (!socket.isDisconnected && !database.isEmpty) {
 }
 ```
 
+プロパティによっては、明白な肯定形がないものもある。
+ディスクにフラッシュされたドキュメントは "保存" されたのか、"*未*変更" にされたのか。
+ディスクにフラッシュされ *なかった* 文書は、"*未* 保存" なのか "変更" なのか。
+曖昧な場合は、ユーザーによって否定されにくい方、あるいは名前が短い方に傾いてください。
 For some properties, there is no obvious positive form. Is a document that has
 been flushed to disk "saved" or "*un*-changed"? Is a document that *hasn't* been
 flushed "*un*-saved" or "changed"? In ambiguous cases, lean towards the choice
 that is less likely to be negated by users or has the shorter name.
 
+**例外:** いくつかのプロパティでは、否定形が圧倒的にユーザーが使う必要のあるものです。
+肯定ケースを選ぶと、いたるところで `!` とプロパティを否定しなければならなくなります。
+その代わりに、そのプロパティには否定ケースを使う方が良いかもしれません。
 **Exception:** With some properties, the negative form is what users
 overwhelmingly need to use. Choosing the positive case would force them to
 negate the property with `!` everywhere. Instead, it may be better to use the
 negative case for that property.
 
 
-### PREFER an imperative verb phrase for a function or method whose main purpose is a side effect
+### PREFER 副作用を主目的とする関数やメソッドには、命令形の動詞句を優先する。 PREFER an imperative verb phrase for a function or method whose main purpose is a side effect
 
+呼び出し可能なメンバは、呼び出し元に結果を返し、他の作業や副作用を実行できます。
+Dartのような命令型言語では、メンバは主に副作用のために呼び出されることが多い： 
+メンバは、オブジェクトの内部状態を変更したり、出力を生成したり、外部と通信したりします。
 Callable members can return a result to the caller and perform other work or
 side effects. In an imperative language like Dart, members are often called
 mainly for their side effect: they may change an object's internal state,
 produce some output, or talk to the outside world.
 
+そのようなメンバーは、そのメンバーが処理する仕事を明確にする命令形の動詞句を利用して、
+名づけるべきである。
 Those kinds of members should be named using an imperative verb phrase that
 clarifies the work the member performs.
 
@@ -283,17 +345,25 @@ queue.removeFirst();
 window.refresh();
 ```
 
+こうすることで、呼び出しはその仕事をするためのコマンドのように読める。
 This way, an invocation reads like a command to do that work.
 
 
-### PREFER a noun phrase or non-imperative verb phrase for a function or method if returning a value is its primary purpose
+### PREFER 値を返すことが主目的の関数やメソッドには、名詞句や命令形でない動詞句を優先する。 PREFER a noun phrase or non-imperative verb phrase for a function or method if returning a value is its primary purpose
 
+その他の呼び出し可能なメンバは、副作用はほとんどないが、呼び出し元に有用な結果を返す。
+そのためにパラメータを必要としないメンバは、一般的にゲッターであるべきだ。
+しかし、論理的な "プロパティ "にパラメータが必要なこともある。
+例えば、`elementAt()`はコレクションからデータの一部を返しますが、
+返すデータの*どの*一部をかを知るためにパラメータが必要です。
 Other callable members have few side effects but return a useful result to the
 caller. If the member needs no parameters to do that, it should generally be a
 getter. But sometimes a logical "property" needs some parameters. For example,
 `elementAt()` returns a piece of data from a collection, but it needs a
 parameter to know *which* piece of data to return.
 
+これは、そのメンバが *文法的には* メソッドであるが、*概念的には* プロパティであることを意味し、
+そのメンバーが何を返すかを説明するフレーズを使って、そのように名前を付けるべきである。
 This means the member is *syntactically* a method, but *conceptually* it is a
 property, and should be named as such using a phrase that describes *what* the
 member returns.
@@ -306,13 +376,22 @@ var first = list.firstWhere(test);
 var char = string.codeUnitAt(4);
 ```
 
+このガイドラインは、前のガイドラインよりも意図的に柔軟にしてある。
+ときどき、メソッドは副作用を持たないが、`list.take()`や`string.split()`のように
+動詞句で名前を付けた方がずっと簡単な場合もあります。
 This guideline is deliberately softer than the previous one. Sometimes a method
 has no side effects but is still simpler to name with a verb phrase like
 `list.take()` or `string.split()`.
 
 
-### CONSIDER an imperative verb phrase for a function or method if you want to draw attention to the work it performs
+### CONSIDER 関数またはメソッドが処理するする仕事に注意を向けさせたい場合は、関数またはメソッドに命令形の動詞句を使うことを検討する。 CONSIDER an imperative verb phrase for a function or method if you want to draw attention to the work it performs
 
+メンバが副作用なしに結果を生成する場合、通常はゲッターか、
+それが返す結果を表す名詞句の名前を持つメソッドであるべきです。
+しかしながら、ときどき、その結果を生成するために必要な処理が重要である。
+実行時に失敗しやすかったり、ネットワークやファイルI/Oのような重いリソースを使ったりすることもある。
+このような場合、メンバが行っている処理について呼び出し元に考えてもらいたい場合は、
+メンバにその作業を表す動詞句の名前を付けます。
 When a member produces a result without any side effects, it should usually be a
 getter or a method with a noun phrase name describing the result it returns.
 However, sometimes the work required to produce that result is important. It may
@@ -328,6 +407,11 @@ var table = database.downloadData();
 var packageVersions = packageGraph.solveConstraints();
 ```
 
+しかし、このガイドラインは前の2つよりも柔軟であることに注意してほしい。
+操作が実行する作業は、呼び出し元には関係のない実装の詳細であることが多く、
+パフォーマンスと堅牢性の境界は時間とともに変化します。
+たいていの場合、メンバがどのように行うかではなく、
+呼び出し元に対して何を行うかに基づいて、名前を付けます。
 Note, though, that this guideline is softer than the previous two. The work an
 operation performs is often an implementation detail that isn't relevant to the
 caller, and performance and robustness boundaries change over time. Most of the
@@ -335,7 +419,7 @@ time, name your members based on *what* they do for the caller, not *how* they
 do it.
 
 
-### AVOID starting a method name with `get`
+### AVOID メソッド名を `get` で始めるのは避ける。 AVOID starting a method name with `get`
 
 In most cases, the method should be a getter with `get` removed from the name.
 For example, instead of a method named `getBreakfastOrder()`, define a getter

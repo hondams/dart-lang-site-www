@@ -1,0 +1,9 @@
+
+ src/effective-dart/_readme.md
+ src/effective-dart/design.md
+ src/effective-dart/documentation.md
+ src/effective-dart/index.md
+ src/effective-dart/style.md
+ src/effective-dart/usage.md
+ src/guides/packages.md
+ src/tools/pub/package-layout.md
